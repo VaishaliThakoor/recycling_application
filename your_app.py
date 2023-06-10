@@ -18,7 +18,7 @@ def main():
     if uploaded_image is not None:
         # Load and preprocess the uploaded image
         image = Image.open(uploaded_image)
-        st.image(img, caption="Uploaded Image", use_column_width=True)
+        st.image(image, caption="Uploaded Image", use_column_width=True)
         processed_image = preprocess_image(image)
 
         # Make predictions using the trained model
