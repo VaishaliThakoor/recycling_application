@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 
 model = tf.keras.models.load_model('waste_classification_model.h5')
-
+ 
 # Define the recycling categories
 recycling_categories = ['Cardboard', 'Glass', 'Metal', 'Paper', 'Plastic', 'Trash']
 
@@ -33,21 +33,16 @@ def main():
 
         # Make predictions using the trained model
         predictions = model.predict(processed_image)
-        predicted_class_index = np.argmax(predictions)
-        predicted_class = recycling_categories[predicted_class_index]
-        is_recyclable = "Yes" if predicted_class_index < len(recycling_categories) - 1 else "No"
+        predicted_class = recycling_categories[np.argmax(predictions)]
         recycling_instruction = recycling_instructions.get(predicted_class, "No recycling information available.")
 
-        # Display the predicted recycling category and whether it's recyclable
-        st.subheader("Predicted Waste Category:")
+        # Display the predicted recycling category
+        st.subheader("Predicted Recycling Category:")
         st.write(predicted_class)
-        st.subheader("Recyclable:")
-        st.write(is_recyclable)
 
-        # Display recycling instructions if recyclable
-        if is_recyclable == "Yes":
-            st.subheader("Recycling Instructions:")
-            st.write(recycling_instruction)
+        # Display recycling instructions
+        st.subheader("Recycling Instructions:")
+        st.write(recycling_instruction)
 
 # Preprocess the image (resize, normalize, etc.) for model input
 def preprocess_image(image):
@@ -61,4 +56,3 @@ def preprocess_image(image):
 
 if __name__ == "__main__":
     main()
-
