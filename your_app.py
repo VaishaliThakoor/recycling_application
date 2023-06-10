@@ -1,41 +1,50 @@
 import streamlit as st
-import tensorflow as tf
-import numpy as np
-import requests
 from PIL import Image
+import numpy as np
+import json
+from tensorflow.keras.models import model_from_json
 
-# Load pre-trained model
-model = tf.keras.applications.MobileNetV2()
+# Load the pre-saved model
+def load_model():
+    with open('model.json', 'r') as f:
+        model_json = json.load(f)
+    model = model_from_json(model_json)
+    # Load model weights if needed
+    model.load_weights('model_weights.h5')
+    return model
+ 
+# Define the recycling categories
+recycling_categories = ['Cardboard', 'Glass', 'Metal', 'Paper', 'Plastic', 'Trash']
 
-# Define labels
-labels_path = tf.keras.utils.get_file("ImageNetLabels.txt", 
-                                      "https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt")
-with open(labels_path) as f:
-    labels = f.readlines()
-labels = [label.strip() for label in labels]
+# Create the Streamlit web app
+def main():
+    st.title("Recycling App")
 
-st.title("Image Classifier")
+    # Add an image uploader for the user to upload waste images
+    uploaded_image = st.file_uploader("Upload an image of the waste")
 
-# Upload an image
-uploaded_file = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"])
+    if uploaded_image is not None:
+        # Load and preprocess the uploaded image
+        image = Image.open(uploaded_image)
+        processed_image = preprocess_image(image)
 
-if uploaded_file is not None:
-    # Read the image
-    img = Image.open(uploaded_file)
-    st.image(img, caption="Uploaded Image", use_column_width=True)
+        # Make predictions using the trained model
+        predictions = model.predict(processed_image)
+        predicted_class = recycling_categories[np.argmax(predictions)]
 
-    # Preprocess the image
-    img = img.resize((224, 224))
-    img_array = np.array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
+        # Display the predicted recycling category
+        st.subheader("Predicted Recycling Category:")
+        st.write(predicted_class)
 
-    # Make predictions
-    predictions = model.predict(img_array)
-    predicted_label = np.argmax(predictions)
-    predicted_class = labels[predicted_label]
+# Preprocess the image (resize, normalize, etc.) for model input
+def preprocess_image(image):
+    # Apply any necessary preprocessing steps (resize, normalize, etc.)
+    processed_image = image.resize((128, 128))  # Example resizing to 224x224
+    processed_image = np.array(processed_image) / 255.0
+    processed_image = np.expand_dims(processed_image, axis=0)
 
-    # Display the predicted class
-    st.write(f"Predicted Class: {predicted_class}")
+    # Return the processed image
+    return processed_image
 
-
-
+if __name__ == "__main__":
+    main()
