@@ -10,6 +10,8 @@ def load_model():
         model_json = json.load(f)
     model = model_from_json(model_json)
     return model
+
+model = load_model()
  
 # Define the recycling categories
 recycling_categories = ['Cardboard', 'Glass', 'Metal', 'Paper', 'Plastic', 'Trash']
