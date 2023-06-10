@@ -1,31 +1,38 @@
 import streamlit as st
-import requests
 import tensorflow as tf
+import numpy as np
+from PIL import Image
 
-# Specify the URL of the model folder on Google Drive
-folder_url = "https://drive.google.com/drive/folders/1lPhuBWhJ5nF8118nRPV3X-vADUkelAp5?usp=drive_link"
+# Load the pre-trained model
+model = tf.keras.applications.MobileNetV2()
 
-# Download the folder metadata
-response = requests.get(folder_url)
-folder_contents = response.content.decode('utf-8')
+# Define the labels for ImageNet classes
+LABELS_URL = "https://raw.githubusercontent.com/anishathalye/imagenet-simple-labels/master/imagenet-simple-labels.json"
+labels = tf.keras.utils.get_file("ImageNetLabels.json", LABELS_URL)
 
-# Extract the file IDs from the folder metadata
-file_ids = []
-for line in folder_contents.split("\n"):
-    if "data-id" in line:
-        file_id = line.split('data-id="')[1].split('"')[0]
-        file_ids.append(file_id)
+# Load the ImageNet labels
+with open(labels) as f:
+    imagenet_labels = np.array(f.read().splitlines())
 
-# Load the model
-with st.spinner('Loading the model...'):
-    for file_id in file_ids:
-        file_url = f"https://drive.google.com/uc?id={file_id}"
-        response = requests.get(file_url)
-        # Process the downloaded file
-        # Load the model using the appropriate code for your model type
-        model = tf.keras.models.load_model(response.content)
+# Streamlit app code
+st.title("Image Classification with TensorFlow")
 
-st.success('Model loaded successfully!')
+# Upload and classify an image
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+if uploaded_file is not None:
+    # Display the uploaded image
+    image = Image.open(uploaded_file)
+    st.image(image, caption="Uploaded Image", use_column_width=True)
 
-# Use the loaded model for your Streamlit app
+    # Preprocess the image
+    resized_image = image.resize((224, 224))
+    normalized_image = np.array(resized_image) / 255.0
+    input_image = np.expand_dims(normalized_image, axis=0)
 
+    # Classify the image
+    predictions = model.predict(input_image)
+    predicted_label = imagenet_labels[np.argmax(predictions)]
+
+    # Display the predicted label
+    st.subheader("Prediction:")
+    st.write(predicted_label)
