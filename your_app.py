@@ -9,8 +9,6 @@ def load_model():
     with open('model.json', 'r') as f:
         model_json = json.load(f)
     model = model_from_json(model_json)
-    # Load model weights if needed
-    model.load_weights('model_weights.h5')
     return model
  
 # Define the recycling categories
