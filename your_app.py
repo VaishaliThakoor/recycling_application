@@ -1,10 +1,16 @@
 import streamlit as st
+import pandas as pd
 
-st.title("Simple Streamlit App")
+st.title("CSV File Viewer")
 
-# Text input
-user_input = st.text_input("Enter some text")
+# Upload a CSV file
+uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
-# Echo the entered text
-st.write("You entered:", user_input)
+if uploaded_file is not None:
+    # Read the CSV file into a DataFrame
+    df = pd.read_csv(uploaded_file)
+
+    # Display the DataFrame
+    st.dataframe(df)
+
 
