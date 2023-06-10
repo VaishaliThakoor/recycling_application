@@ -1,8 +1,3 @@
-import streamlit as st
-import tensorflow as tf
-import numpy as np
-from PIL import Image
-
 # Load the pre-trained model
 model = tf.keras.applications.MobileNetV2()
 
