@@ -1,17 +1,9 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
-import json
-from tensorflow.keras.models import model_from_json
+import tensorflow as tf
 
-# Load the pre-saved model
-def load_model():
-    with open('model.json', 'r') as f:
-        model_json = json.load(f)
-    model = model_from_json(model_json)
-    return model
-
-model = load_model()
+model = tf.keras.models.load_model('model.h5')
  
 # Define the recycling categories
 recycling_categories = ['Cardboard', 'Glass', 'Metal', 'Paper', 'Plastic', 'Trash']
